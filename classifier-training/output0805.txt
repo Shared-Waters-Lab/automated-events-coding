@@ -1,0 +1,35 @@
+{'eval_loss': '0.5042', 'eval_f1': '0.7323', 'eval_runtime': '8.148', 'eval_samples_per_second': '81.37', 'eval_steps_per_second': '40.75', 'epoch': '1'}
+{'eval_loss': '0.4552', 'eval_f1': '0.8196', 'eval_runtime': '8.068', 'eval_samples_per_second': '82.18', 'eval_steps_per_second': '41.15', 'epoch': '2'}
+{'eval_loss': '0.6003', 'eval_f1': '0.8151', 'eval_runtime': '8.044', 'eval_samples_per_second': '82.42', 'eval_steps_per_second': '41.27', 'epoch': '3'}
+{'loss': '3.058', 'grad_norm': '113', 'learning_rate': '1.312e-05', 'epoch': '3.448'}
+{'eval_loss': '0.6995', 'eval_f1': '0.7896', 'eval_runtime': '8.047', 'eval_samples_per_second': '82.39', 'eval_steps_per_second': '41.26', 'epoch': '4'}
+{'eval_loss': '0.961', 'eval_f1': '0.8134', 'eval_runtime': '8.04', 'eval_samples_per_second': '82.46', 'eval_steps_per_second': '41.29', 'epoch': '5'}
+{'train_runtime': '642.6', 'train_samples_per_second': '36.09', 'train_steps_per_second': '2.257', 'train_loss': '2.522', 'epoch': '5'}
+--- threshold = 0.5 ---
+              precision    recall  f1-score   support
+
+           N       0.84      0.74      0.79       166
+           Y       0.77      0.86      0.81       166
+
+    accuracy                           0.80       332
+   macro avg       0.80      0.80      0.80       332
+weighted avg       0.80      0.80      0.80       332
+
+
+--- error breakdown ---
+True positives: 142
+True negatives: 123
+False positives: 43 (False Positive Recall = 0.259)
+False negatives: 24 (False Negative Recall = 0.145)
+
+--- threshold sweep (positive class) ---
+threshold | precision |    recall | FN count
+      0.1 |     0.674 |     0.970 |        5
+      0.2 |     0.720 |     0.946 |        9
+      0.3 |     0.748 |     0.910 |       15
+      0.4 |     0.760 |     0.898 |       17
+      0.5 |     0.768 |     0.855 |       24
+      0.6 |     0.788 |     0.807 |       32
+      0.7 |     0.786 |     0.729 |       45
+      0.8 |     0.779 |     0.614 |       64
+      0.9 |     0.796 |     0.446 |       92

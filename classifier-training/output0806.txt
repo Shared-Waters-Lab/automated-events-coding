@@ -1,0 +1,36 @@
+{'eval_loss': '0.6909', 'eval_f1': '0.5845', 'eval_runtime': '8.111', 'eval_samples_per_second': '81.74', 'eval_steps_per_second': '40.93', 'epoch': '1'}
+{'eval_loss': '0.4999', 'eval_f1': '0.8167', 'eval_runtime': '8.035', 'eval_samples_per_second': '82.51', 'eval_steps_per_second': '41.32', 'epoch': '2'}
+{'eval_loss': '0.5726', 'eval_f1': '0.8173', 'eval_runtime': '8.055', 'eval_samples_per_second': '82.31', 'eval_steps_per_second': '41.22', 'epoch': '3'}
+{'loss': '3.114', 'grad_norm': '58.03', 'learning_rate': '1.312e-05', 'epoch': '3.448'}
+{'eval_loss': '0.7367', 'eval_f1': '0.8161', 'eval_runtime': '8.061', 'eval_samples_per_second': '82.24', 'eval_steps_per_second': '41.18', 'epoch': '4'}
+{'eval_loss': '0.7326', 'eval_f1': '0.7976', 'eval_runtime': '8.064', 'eval_samples_per_second': '82.21', 'eval_steps_per_second': '41.17', 'epoch': '5'}
+{'eval_loss': '1.888', 'eval_f1': '0.7191', 'eval_runtime': '8.065', 'eval_samples_per_second': '82.2', 'eval_steps_per_second': '41.16', 'epoch': '6'}
+{'train_runtime': '769.9', 'train_samples_per_second': '30.12', 'train_steps_per_second': '1.883', 'train_loss': '2.314', 'epoch': '6'}
+--- threshold = 0.5 ---
+              precision    recall  f1-score   support
+
+           N       0.91      0.67      0.77       166
+           Y       0.74      0.93      0.82       166
+
+    accuracy                           0.80       332
+   macro avg       0.82      0.80      0.80       332
+weighted avg       0.82      0.80      0.80       332
+
+
+--- error breakdown ---
+True positives: 155
+True negatives: 111
+False positives: 55 (False Positive Recall = 0.331)
+False negatives: 11 (False Negative Recall = 0.066)
+
+--- threshold sweep (positive class) ---
+threshold | precision |    recall | FN count | FP count
+      0.1 |     0.668 |     0.982 |        3 |       81
+      0.2 |     0.691 |     0.982 |        3 |       73
+      0.3 |     0.707 |     0.958 |        7 |       66
+      0.4 |     0.722 |     0.940 |       10 |       60
+      0.5 |     0.738 |     0.934 |       11 |       55
+      0.6 |     0.751 |     0.928 |       12 |       51
+      0.7 |     0.771 |     0.892 |       18 |       44
+      0.8 |     0.780 |     0.855 |       24 |       40
+      0.9 |     0.786 |     0.753 |       41 |       34

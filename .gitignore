@@ -217,5 +217,14 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
+<<<<<<< HEAD
 # certain docs
 docs/SandboxEventsCodingProtocol_2026Update.pdf
+=======
+# Classifier
+classifier-training/pr-classifier
+classifier-training/human-pr
+classifier-training/held-out-test
+classifier-training/raw_pr
+
+>>>>>>> ce56b7b (first classifier training)
