@@ -94,12 +94,30 @@ separately trained, non-LLM model.
 ---
 
 ## Open implementation questions
-- Confirm exact source of the "GW mentioned = Y" flag gating Step 2.2 (Step 1, 2, or 3 output?).
+- Confirm exact source of the "GW mentioned = Y" flag gating Step 2.2 (Step 1, 2, or 3
+  output?). Cross-referencing `docs/SandboxEventsCodingProtocol_2026Update.pdf` (the
+  human coding protocol this pipeline automates) surfaces a further wrinkle: the
+  codebook only codes an Aquifer Name when Step 2.1's `bcode` resolves to `"GRND"` --
+  i.e. Step 2.2 may need to depend on Step 2.1's *output*, not an independent flag off
+  Step 2 as the diagram currently shows. There's also a separate, seemingly distinct
+  "Groundwater" Y/N field in the codebook (event mentions/uses groundwater at all,
+  even alongside surface water) that doesn't obviously map to either of the above.
+  Current code (`schemas.PlaceNames.gw_mentioned`, `orchestrator._run_location_branch`)
+  follows the diagram's original design pending a decision here.
 - Confirm whether Steps 2/2.1/2.2 must complete before Step 4 starts, or if they run
   fully in parallel (diagram shows both branching off the same per-event loop with no
   cross-dependency).
 - Define the exact `Event`, `Pair`, and entity schemas as shared types before wiring
   the LLM prompts, since several steps pass structured objects downstream (e.g. Step 4
-  actors feed directly into 5.1/5.2 conditionals).
+  actors feed directly into 5.1/5.2 conditionals). Partially resolved by cross-
+  referencing the codebook: `bcode` is the TFDD basin code (Step 2.1's output, not
+  something Step 6 invents), and Step 5.2's "`dyad_code` per entity" is the codebook's
+  IRMO role code (initiator/recipient/mutual/other) -- see `pipeline/schemas.py` for
+  the current (still draft) shapes.
+- Two codebook-referenced reference files aren't in the repo yet and back several
+  rule-based steps: `Geospatial Reference List 2025.xlsx` (basin/country codes, backs
+  Step 2.1) and `Entity Code Reference List 2025.xlsx` (backs Steps 5.1/5.2). Confirm
+  whether these are the same gazetteer/codebook data already planned, or additional
+  files to source.
 - Step 6 dedup matching strategy (exact key match vs. fuzzy/similarity threshold) is
   TBD pending real example data and its quality.

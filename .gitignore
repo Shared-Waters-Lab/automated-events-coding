@@ -216,3 +216,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# certain docs
+docs/SandboxEventsCodingProtocol_2026Update.pdf
