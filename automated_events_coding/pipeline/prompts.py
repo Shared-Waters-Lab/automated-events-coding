@@ -10,47 +10,26 @@ corresponding model changes.
 # Input: PR data (text) + Step 0 metadata
 # Output: events: Event[]
 STEP1_EVENT_EXTRACTION = """\
-# Event Extraction
-
-<!-- TODO: task instructions -->
-
+# Event detection task
+## Background
+You will be given an article that reports one or more events. We are compiling a data set of current events, so please extract all of the current events. Assume historical events and background information have already been catalogued.
+## Definitions
+Use the following definition to inform your response:
+* Events: These are the current, specific actions taken by actors referenced in the news article, current relative to the writing of the article and the reason why the article is written. The event is singular regardless of the number of riparians and actors involved. Events are comprised of interactions; an event and an interaction are equivalent if there are only two entities interacting. There can be multiple events within a single article; each event should be listed separately. An event is something that has definitively happened and not background information that acts as context for the reader.
+* Background: This is information about things that happened in the past that are used to inform the reader of the context of current events. These often include former laws or treaties that have been signed prior to the current events. They also comprise existing infrastructure and other resources like dams, bridges etc....
+* Summary: A detailed description of the event as a whole these should be summarized here. It should reflect specific language mentioned in the article, especially key operative verbs.
 ## Output Format
-
 ```json
-{
-  "$defs": {
-    "Event": {
-      "description": "A single discrete event extracted from an article in Step 1.",
-      "properties": {
-        "text": {
-          "title": "Text",
-          "type": "string"
-        }
-      },
-      "required": [
-        "text"
-      ],
-      "title": "Event",
-      "type": "object"
-    }
+[
+  {
+    "event_summary": str // name of event
   },
-  "description": "Step 1 output.",
-  "properties": {
-    "events": {
-      "items": {
-        "$ref": "#/$defs/Event"
-      },
-      "title": "Events",
-      "type": "array"
-    }
-  },
-  "required": [
-    "events"
-  ],
-  "title": "EventList",
-  "type": "object"
-}
+  // rest of events
+]
 ```
+## Notes
+* When an action is ambigious use the exact language from the article.
+* Pay close attention to what the event really is. To do so be sure to track the verb tenses used.
 """
 
 # Step 2 - Location Extraction
