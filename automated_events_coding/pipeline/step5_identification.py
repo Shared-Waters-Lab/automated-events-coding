@@ -12,31 +12,36 @@ Step 5.2 - Interaction ID (type == "interaction", else branch)
 
 from __future__ import annotations
 
+from functools import partial
+
 from openai import OpenAI
 
+from automated_events_coding.llm.validation import parse_json_as, request_json
 from automated_events_coding.pipeline import prompts
 from automated_events_coding.pipeline.schemas import ActionID, InteractionID
 
 
-def identify_action(client: OpenAI, model: str, actor_summary: str) -> ActionID:
-    response = client.chat.completions.create(
-        model=model,
-        messages=[
-            {"role": "system", "content": prompts.STEP5_1_ACTION_ID},
-            {"role": "user", "content": actor_summary},
-        ],
+def identify_action(
+    client: OpenAI, model: str, actor_summary: str, max_retries: int = 2
+) -> ActionID:
+    return request_json(
+        client,
+        model,
+        prompts.STEP5_1_ACTION_ID,
+        actor_summary,
+        parse=partial(parse_json_as, model=ActionID),
+        max_retries=max_retries,
     )
-    content = response.choices[0].message.content
-    return ActionID.model_validate_json(content)
 
 
-def identify_interaction(client: OpenAI, model: str, interaction_summary: str) -> InteractionID:
-    response = client.chat.completions.create(
-        model=model,
-        messages=[
-            {"role": "system", "content": prompts.STEP5_2_INTERACTION_ID},
-            {"role": "user", "content": interaction_summary},
-        ],
+def identify_interaction(
+    client: OpenAI, model: str, interaction_summary: str, max_retries: int = 2
+) -> InteractionID:
+    return request_json(
+        client,
+        model,
+        prompts.STEP5_2_INTERACTION_ID,
+        interaction_summary,
+        parse=partial(parse_json_as, model=InteractionID),
+        max_retries=max_retries,
     )
-    content = response.choices[0].message.content
-    return InteractionID.model_validate_json(content)

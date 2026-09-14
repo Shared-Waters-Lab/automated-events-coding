@@ -10,9 +10,9 @@ package holds application code, split into `llm/` (model-serving infrastructure)
 and `pipeline/` (the Steps 0-6 pipeline logic itself, see below). Most step
 modules are scaffolded but not functional yet — they're wired to call the LLM
 and parse its response, but the actual prompts (`pipeline/prompts.py`) are
-still empty placeholders, and Step 0's classifier and the Step 2.1/2.2
-gazetteer lookups are unimplemented stubs pending their backing model/data.
-Step 6 dedup is the one step module that's fully implemented already. There is
+still empty placeholders, and the Step 2.1/2.2 gazetteer
+lookups are unimplemented stubs pending their backing data.
+Steps 0 and 6 are the two step modules that are fully implemented already. There is
 no test runner configured yet and no lint/format tooling has been chosen;
 update this section once those are added.
 
@@ -57,8 +57,11 @@ belongs to one of the other two:
   LLM served via `llama-server` (llama.cpp) on a university cluster node/port,
   invoked through the OpenAI-compatible client.
 - **Classifier-governed** (step 0, relevance check) — a fine-tuned BERT classifier
-  trained on existing gold-standard labeled data. Not an LLM call. Model is not
-  yet trained.
+  trained on existing gold-standard labeled data. Not an LLM call. The final
+  model lives at https://huggingface.co/pnadel/article-classifier (private repo;
+  `step0_relevance.py` loads it via `transformers` with the `HF_TOKEN` from `.env`
+  at the project root — add your token there). Its `meta` (relevance label +
+  score) is passed into Step 1.
 - **Rule-based** (steps 2.1/2.2 gazetteer lookups; step 6 dedup) — deterministic,
   no model call. Country/basin and aquifer lookups run against gazetteer data
   (to be added to the repo). Step 6 dedup matching strategy (exact key match vs.

@@ -11,8 +11,11 @@ Downstream: feeds Step 6.
 
 from __future__ import annotations
 
+from functools import partial
+
 from openai import OpenAI
 
+from automated_events_coding.llm.validation import parse_json_as, request_json
 from automated_events_coding.pipeline import prompts
 from automated_events_coding.pipeline.schemas import AquiferLookup, CountryBasinLookup, EventLead
 
@@ -23,17 +26,17 @@ def extract_event_lead(
     event_text: str,
     country_basin: CountryBasinLookup,
     aquifer: AquiferLookup | None,
+    max_retries: int = 2,
 ) -> EventLead:
     context = country_basin.model_dump_json()
     if aquifer is not None:
         context += "\n" + aquifer.model_dump_json()
 
-    response = client.chat.completions.create(
-        model=model,
-        messages=[
-            {"role": "system", "content": prompts.STEP3_EVENT_LEAD},
-            {"role": "user", "content": f"{event_text}\n\n{context}"},
-        ],
+    return request_json(
+        client,
+        model,
+        prompts.STEP3_EVENT_LEAD,
+        f"{event_text}\n\n{context}",
+        parse=partial(parse_json_as, model=EventLead),
+        max_retries=max_retries,
     )
-    content = response.choices[0].message.content
-    return EventLead.model_validate_json(content)

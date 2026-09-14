@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from enum import Enum
 
-from pydantic import BaseModel
+from pydantic import AliasChoices, BaseModel, Field
 
 
 class RelevanceResult(BaseModel):
@@ -23,9 +23,14 @@ class RelevanceResult(BaseModel):
 
 
 class Event(BaseModel):
-    """A single discrete event extracted from an article in Step 1."""
+    """A single discrete event extracted from an article in Step 1.
 
-    text: str
+    The Step 1 prompt has the LLM emit ``event_summary``; accept it as a
+    validation alias so raw LLM output can be validated directly into this
+    model (construction still uses ``text``).
+    """
+
+    text: str = Field(alias="event_summary", validation_alias=AliasChoices("event_summary", "text"))
 
 
 class EventList(BaseModel):
