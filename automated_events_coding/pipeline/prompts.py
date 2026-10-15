@@ -29,7 +29,9 @@ Use the following definition to inform your response:
 ```
 ## Notes
 * When an action is ambigious use the exact language from the article.
-* Pay close attention to what the event really is. To do so be sure to track the verb tenses used.
+* Pay close attention to what the event really is. To do so be sure to track the verb tenses used. Do not cut up the event into different parts. Instead use your knowledge of news articles to accurately determine each event.
+* For each article, try to keep your number of events from 2 to 7, depending of course on the length of the article. 
+* Be sure to include names of relevant people and places. These will be used in downstream processing so it is important that you list these as accurately as possible. 
 """
 
 # Step 2 - Location Extraction
@@ -37,34 +39,20 @@ Use the following definition to inform your response:
 # Output: place_names: string[]
 STEP2_LOCATION_EXTRACTION = """\
 # Location Extraction
-
-<!-- TODO: task instructions -->
-
+## Background
+You will be given a description of an event and an article from which that event is drawn. You will need to extract placenames of where the *event* is occuring. Do not just extract placenames from the article. Rather, use it only to inform your context for the event. 
+## Definitions
+* Placenames: Only collect placenames that refer to water bodies (including but not limited to rivers, tributaries, dams and other infrastructure and project titles), as well as country, city names. Pay close attention to abbreviations that occur in the article text and event. 
+* Please convert demonyms to their country names only when the event is occuring in that country. For example, if you extract "Namibian", convert it first to "Namibia". Otherwise, ignore demonyms entirely. 
+* Placename type: Please report whether or not the placename is a country or not, with "country" for the former and "non-country" for the latter.
 ## Output Format
-
 ```json
-{
-  "description": "Step 2 output.",
-  "properties": {
-    "place_names": {
-      "items": {
-        "type": "string"
-      },
-      "title": "Place Names",
-      "type": "array"
-    },
-    "gw_mentioned": {
-      "title": "Gw Mentioned",
-      "type": "boolean"
-    }
-  },
-  "required": [
-    "place_names",
-    "gw_mentioned"
-  ],
-  "title": "PlaceNames",
-  "type": "object"
-}
+[
+  {
+    "placename": str, // placename
+    "placename_type": str // either "country" nor "non-country"
+  }
+]
 ```
 """
 
@@ -76,165 +64,13 @@ STEP3_EVENT_LEAD = """\
 # Event-lead Extraction
 
 <!-- TODO: task instructions -->
+# 
+
 
 ## Output Format
 
 ```json
-{
-  "$defs": {
-    "EventDate": {
-      "properties": {
-        "day": {
-          "anyOf": [
-            {
-              "type": "integer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Day"
-        },
-        "month": {
-          "anyOf": [
-            {
-              "type": "integer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Month"
-        },
-        "year": {
-          "anyOf": [
-            {
-              "type": "integer"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Year"
-        }
-      },
-      "title": "EventDate",
-      "type": "object"
-    },
-    "IssueArea": {
-      "description": "Controlled vocabulary from the codebook; an event may have several.",
-      "enum": [
-        "0",
-        "Water Quality",
-        "Water Quantity",
-        "Fisheries",
-        "Hydropower",
-        "Domestic/Municipal Water",
-        "Navigation",
-        "Agriculture",
-        "Forestry and Timber",
-        "Infrastructure",
-        "Climate Change",
-        "Environment",
-        "Flood Management",
-        "Drought Management",
-        "Socioeconomic Development",
-        "Funding and Financing",
-        "Territorial and Border Issues"
-      ],
-      "title": "IssueArea",
-      "type": "string"
-    },
-    "ScaleOfImpact": {
-      "description": "Codebook's \\"Scale Of Impact\\" -- descriptive of who's affected, not headcount.",
-      "enum": [
-        0,
-        1,
-        2,
-        3,
-        4,
-        99
-      ],
-      "title": "ScaleOfImpact",
-      "type": "integer"
-    }
-  },
-  "description": "Step 3 output.",
-  "properties": {
-    "multiday": {
-      "title": "Multiday",
-      "type": "boolean"
-    },
-    "date": {
-      "$ref": "#/$defs/EventDate"
-    },
-    "issue_area": {
-      "items": {
-        "$ref": "#/$defs/IssueArea"
-      },
-      "title": "Issue Area",
-      "type": "array"
-    },
-    "scale_of_impact": {
-      "$ref": "#/$defs/ScaleOfImpact"
-    },
-    "groundwater": {
-      "title": "Groundwater",
-      "type": "boolean"
-    },
-    "infrastructure_involved": {
-      "title": "Infrastructure Involved",
-      "type": "boolean"
-    },
-    "jbi_involved": {
-      "title": "Jbi Involved",
-      "type": "boolean"
-    },
-    "jbi_description": {
-      "anyOf": [
-        {
-          "type": "string"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "default": null,
-      "title": "Jbi Description"
-    },
-    "non_basin_entity_involved": {
-      "title": "Non Basin Entity Involved",
-      "type": "boolean"
-    },
-    "non_basin_entity_description": {
-      "anyOf": [
-        {
-          "type": "string"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "default": null,
-      "title": "Non Basin Entity Description"
-    }
-  },
-  "required": [
-    "multiday",
-    "date",
-    "issue_area",
-    "scale_of_impact",
-    "groundwater",
-    "infrastructure_involved",
-    "jbi_involved",
-    "non_basin_entity_involved"
-  ],
-  "title": "EventLead",
-  "type": "object"
-}
+
 ```
 """
 
@@ -244,86 +80,6 @@ STEP3_EVENT_LEAD = """\
 STEP4_INTERACTION_EXTRACTION = """\
 # (Inter)action Extraction
 
-<!-- TODO: task instructions -->
-
-## Output Format
-
-```json
-{
-  "$defs": {
-    "ActorPair": {
-      "properties": {
-        "a": {
-          "title": "A",
-          "type": "string"
-        },
-        "b": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "B"
-        }
-      },
-      "required": [
-        "a"
-      ],
-      "title": "ActorPair",
-      "type": "object"
-    },
-    "InteractionItem": {
-      "description": "One actor/interaction item from Step 4, looped over in Step 5.",
-      "properties": {
-        "type": {
-          "$ref": "#/$defs/InteractionType"
-        },
-        "actors": {
-          "$ref": "#/$defs/ActorPair"
-        },
-        "summary": {
-          "title": "Summary",
-          "type": "string"
-        }
-      },
-      "required": [
-        "type",
-        "actors",
-        "summary"
-      ],
-      "title": "InteractionItem",
-      "type": "object"
-    },
-    "InteractionType": {
-      "enum": [
-        "action",
-        "interaction"
-      ],
-      "title": "InteractionType",
-      "type": "string"
-    }
-  },
-  "description": "Step 4 output.",
-  "properties": {
-    "interactions": {
-      "items": {
-        "$ref": "#/$defs/InteractionItem"
-      },
-      "title": "Interactions",
-      "type": "array"
-    }
-  },
-  "required": [
-    "interactions"
-  ],
-  "title": "InteractionExtraction",
-  "type": "object"
-}
-```
 """
 
 # Step 5.1 - Action ID

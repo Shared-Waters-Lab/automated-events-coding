@@ -23,6 +23,7 @@ Step 2.2 - Aquifer Lookup (rule-based)
 from __future__ import annotations
 
 import re
+from collections import defaultdict
 from functools import lru_cache, partial
 from pathlib import Path
 
@@ -43,6 +44,9 @@ _COUNTRY_SHEET = "Country Names LU"
 BCODE_UNKN = "UNKN"  # basin not identifiable from the place names
 BCODE_GNRL = "GNRL"  # no place names provided at all
 
+# need a list of terms to exclude when doing the look up
+EXCLUSION_TERMS = ["Dam", "Province", "Water Supply Scheme", "River"]
+
 
 def _split_semicolon_list(value: object) -> list[str]:
     """Split a gazetteer ';'-delimited cell into trimmed, non-empty names."""
@@ -53,44 +57,16 @@ def _split_semicolon_list(value: object) -> list[str]:
 def _load_gazetteer() -> tuple[dict[str, set[str]], dict[str, str]]:
     """Load the basin gazetteer once.
 
-    Returns (name_to_bcodes, ccodes_by_bcode) where ``name_to_bcodes`` maps
-    every Tributary List and Riparian Countries entry (case-insensitive key)
-    to the set of BCODEs it appears under, and ``ccodes_by_bcode`` maps each
-    BCODE to its 3-letter country codes resolved via 'Country Names LU'.
+    
     """
     basins = pd.read_excel(_GAZETTEER_PATH, sheet_name=_BASIN_SHEET, engine="openpyxl")
     countries = pd.read_excel(
         _GAZETTEER_PATH, sheet_name=_COUNTRY_SHEET, engine="openpyxl"
     )
-    name_to_country: dict[str, str] = {
-        str(name).strip().lower(): code for name, code in zip(countries["Country Name"], countries["CCODE"])
-    }
 
-    name_to_bcodes: dict[str, set[str]] = {}
-    riparian_by_bcode: dict[str, list[str]] = {}
-    for _, row in basins.iterrows():
-        bcode = str(row["BCODE"]).strip()
-        # Basin Name is included in the Tributary List for most rows but not
-        # all -- include it explicitly so basin names always resolve.
-        names = (
-            _split_semicolon_list(row["Tributary List"])
-            + [str(row["Basin Name"]).strip()]
-            + _split_semicolon_list(row["Riparian Countries"])
-        )
-        for name in names:
-            name_to_bcodes.setdefault(name.lower(), set()).add(bcode)
+    basins["trib_bname"] = basins["Basin Name"] + "; " + basins["Tributary List"] 
 
-        riparian_names = _split_semicolon_list(row["Riparian Countries"])
-        ccodes = sorted(
-            {
-                name_to_country[name.lower()]
-                for name in riparian_names
-                if name.lower() in name_to_country
-            }
-        )
-        riparian_by_bcode[bcode] = ccodes
-
-    return name_to_bcodes, {b: riparian_by_bcode.get(b, []) for b in basins["BCODE"]}
+    return basins, countries
 
 
 def _normalize(name: str) -> re.Pattern[str] | None:
@@ -104,47 +80,51 @@ def _normalize(name: str) -> re.Pattern[str] | None:
         return None
     return re.compile(rf"\b{re.escape(stripped)}\b", re.IGNORECASE)
 
+def _lookup_country_codes(country_list: list[str], countries: pd.DataFrame) -> list[str]:
+    return [countries[countries["Country Name"] == country].CCODE.values[0] for country in country_list]
 
-def lookup_country_basin(place_names: list[str]) -> CountryBasinLookup:
+def lookup_country_basin(place_names: list[str]) -> list[CountryBasinLookup]:
     """Step 2.1 -- resolve place names to a TFDD basin code (rule-based).
 
-    Each place name is matched (case-insensitively, word-bounded) against the
-    gazetteer's Tributary List and Riparian Countries columns. All matches are
-    intersected: the event's basin must contain every identified tributary AND
-    border every identified riparian country. If exactly one BCODE survives,
-    it is returned with that basin's riparian ccodes; if none or several
-    survive, ``bcode`` is "UNKN" (or "GNRL" when no place names were given)
-    and ``ccodes`` is empty -- the ambiguity should be resolved by a human.
+
     """
     if not place_names:
         return CountryBasinLookup(bcode=BCODE_GNRL, ccodes=[])
 
-    name_to_bcodes, ccodes_by_bcode = _load_gazetteer()
+    basins, countries = _load_gazetteer()
 
-    candidate_sets: list[set[str]] = []
-    for place_name in place_names:
-        pattern = _normalize(place_name)
-        if pattern is None:
-            continue
-        matches: set[str] = set()
-        for gazetteer_name, bcodes in name_to_bcodes.items():
-            if pattern.search(gazetteer_name):
-                matches |= bcodes
-        # A place name that matches nothing in the gazetteer (e.g. a town like
-        # 'Ondjiva') is ignored; it carries no basin information.
-        if matches:
-            candidate_sets.append(matches)
+    country_voting = defaultdict(int)
+    basin_voting = defaultdict(int)
 
-    if not candidate_sets:
-        return CountryBasinLookup(bcode=BCODE_UNKN, ccodes=[])
+    for placename in place_names:
+        if placename['placename_type'] == "country":
+            clean_placename = placename['placename'].strip()
+        poss_basins = basins[basins["Riparian Countries"].apply(lambda x: clean_placename in x.split("; "))].BCODE.to_list()
+        for basin in poss_basins:
+            country_voting[basin] += 1
 
-    candidates = set.intersection(*candidate_sets)
-    if len(candidates) == 1:
-        bcode = next(iter(candidates))
-        return CountryBasinLookup(bcode=bcode, ccodes=list(ccodes_by_bcode.get(bcode, [])))
-    # Ambiguous (or empty after intersection): flag for human review.
-    return CountryBasinLookup(bcode=BCODE_UNKN, ccodes=[])
+    for placename in place_names:
+        if placename['placename_type'] == "non-country":
+            clean_placename = " ".join([word for word in placename['placename'].split(" ") if word not in EXCLUSION_TERMS]).strip()
+            for bcode in country_voting:
+                is_in_this_basin = basins[basins.BCODE == bcode]["trib_bname"].apply(lambda x: x.split("; ")).apply(lambda x: clean_placename in x).any()
+                if is_in_this_basin:
+                    basin_voting[bcode] += country_voting[bcode]
 
+    max_vote = max(basin_voting.values())
+    max_basins = [b for b in basin_voting.items() if b[1] == max_vote]
+    max_basins = dict(max_basins)
+
+    rip_countries = []
+    for bcode in basin_voting.keys():
+        rip_countries += basins[basins.BCODE == bcode]["Riparian Countries"].apply(lambda x: x.split("; ")).explode().to_list()
+    rip_countries = list(set(rip_countries))
+    
+    poss_results = [
+        CountryBasinLookup(bcode=bcode, ccodes=_lookup_country_codes(rip_countries, countries))
+        for bcode in max_basins
+    ]    
+    return poss_results             
 
 def extract_place_names(
     client: OpenAI, model: str, event_text: str, max_retries: int = 2
