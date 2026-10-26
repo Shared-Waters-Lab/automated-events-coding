@@ -1,29 +1,121 @@
-from __future__ import annotations
+"""Example article texts for the event detection prompts.
 
-from enum import Enum
+Extracted from the "Article Text" column of Event_Detection_Examples_for_Prompts.docx.
+Each article appears once, even where the source table repeats it across rows.
 
-from pydantic import AliasChoices, BaseModel, Field
+Usage in a notebook:
+    from example_articles import ARTICLES, ARTICLES_BY_CATEGORY
+    ARTICLES["010_E1"]
+"""
 
+ARTICLE_010_E1 = """ETAKA, 05 AUG (NAMPA) - Namibia Water Corporation (NamWater) on Saturday pumped water from Olushandja South wall outlet into the Etaka-Uuvudhiya earth canal, which stretches across 130 kilometers.The raw water is fit only for livestock consumption and agriculture purposes.NamWater Chief Executive Officer (CEO), Abraham Nehemia, said that the exercise was done due to previous and recurrent prevalent drought reported in the northern part of the country.Nehemia indicated that the Office of Prime Minister allocated N.dollar 3 million to ensure the completion of the project.'Households are expected to utilise the water for their daily needs, especially gardening for nutritional purposes,' he said.He added that they are confident that the water will be available in the dam to supply the canal until the rainy season.Nehemia also indicated that they are expecting the new pumps at Calueque to be commissioned soon, adding that NamWater is strategically looking into the rehabilitation of most of its infrastructure in order to ensure sustainable water supply up to the year 2037 as a planning horizon.Speaking during the same occassion on Saturday at Etaka dam, Omusati Governor, Erginus Endjala, said for the past 5 years, they did not really receive sufficient rainfall, which has affected many people living alongside the west of the canal, including Oshana and Oshikoto regions.Endjala said that this is a game changer for people living along the canal, as their livestock will have water throughout the dry season.He then urged community members to guard against the vandalism of the canal.(NAMPA)MD/HP
+ 
+Load-Date: August 5, 2023"""
 
-class Output(BaseModel):
+ARTICLE_028_E1 = """Maputo, 19 Sep (AIM) - The Mozambican government on Tuesday approved a National Water Resource Management Plan for the next 20 years that will cost an estimated 28 billion US dollars.
+Announcing the plan at the end of the weekly meeting of the Council of Ministers (Cabinet), the government spokesperson, Deputy Minister of Culture and Tourism Ana Comoana, said the plan envisages the sustainable use of the river basins which Mozambique shares with other member states of the Southern African Development Community (SADC).
+Comoana said the plan will be financed through the Mozambican state budget and aid from the country's foreign cooperation partners, and its main purpose is to assess the availability of water resources.
+"The objective of the plan is to assess current and future demand for water", she continued, adding that it would prioritise the construction of water storage infrastructures. Comoana did not say where these might be, but the government has previously stated that among its top priorities are new dams at Mpanda Nkua, on the Zambezi river, about 60 kilometres downstream from the existing Cahora Bassa dam, and at Mapai, in the Limpopo basin in the southern province of Gaza.
+The plan would promote integrated management of water resources, taking into account the specific nature of each river basin. There would be a portfolio of short, medium and long term projects for the sustainable and efficient exploitation of water resources.
+Comoana said the government also intends to invest over 300,000 dollars over the next seven years in implementing the Fourth National Plan for the Advancement of Women, which is intended to promote gender equality.
+This plan, Comoana said, will look in detail at how women are excluded from key development sectors. The government hopes that the plan will coordinate inter-sector activities to ensure the empowerment of women.
+"The plan seeks to promote gender equality in the political, economic, social and cultural spheres", said Comoana, and was in line with the Sustainable Development Goals for 2015 to 2030 approved by the United Nations.
+(AIM)
+ 
+Load-Date: September 19, 2018"""
 
-    type: str
-    entity_pair: str
-    irmo: str
-    coder_summary: str
+ARTICLE_039_E1 = """China is to allocate $15 mln for construction of three multifunctional ports near China-Russia border. The ports are to appear in Tuntszyan, Jiamusi and at Big Ussuri, the administration of Heilongjiang Province said.
+The new facilities are supposed to be both transport hubs and the centers for control of water quality, respond to pollution of trans-border water bodies at Russia-China border.
+So, port of Tuntszyan located near the place where the Sungari enters the Amur River will have special equipment for oil spill recovery. / Portnews
+ 
+Load-Date: April 23, 2009"""
 
-class Article(BaseModel):
+ARTICLE_047_E1 = """By BBC Monitoring
+The following are highlights from Khabarovsk's state-owned GTRK Dalnevostochnaya TV and municipal Gubernia TV news, as well as AmurMedia and Khabarovsky Krai Segodnya news agencies for the period 5-11 August 2019:
+Floods
+The authorities of China's neighbouring Heilongjiang Province have agreed to reduce water discharges into the Sungari River, an Amur tributary, AmurMedia news agency reported on 10 August. Khabarovsk Territory governor Sergei Furgal asked the Heilongjiang Province governor thereof last week as the Amur River had reached a critical level.
+Meanwhile, water levels in the Amur River keep rising: hundreds of houses in the vicinity of Khabarovsk have been inundated, thousands of people have been affected. Automatic inter-network roaming has been introduced for as long as the state of emergency over floods in the region is in force. Thus, if a mobile phone tower is out of order, other mobile phone operators will provide services. (AmurMedia news agency, Khabarovsk, 0400 gmt 10 Aug 19; GTRK Dalnevostochnaya TV "Vesti Khabarovsk" news, Khabarovsk, 1045 gmt 11 Aug 19)
+Elections
+On 6 August GTRK Dalnevostochnaya TV reported on the registration of candidates for regional elections. In single-seat constituencies 195 people submitted applications to run for the Khabarovsk Territory legislative assembly, but only 116 candidates were registered. As for those running on a party ballot,  335 candidates were registered. They represent seven parties: the Communist Party of the Russian Federation (CPRF), the Communists of Russia, the LDPR, the Party of Growth, United Russia, A Just Russia and Motherland (Rodina).
+Some 238 hopefuls submitted documents to run for the Khabarovsk city council, 173 of them were registered. A total of 162 candidates were registered to run for the Komsomolsk-on-Amur city council, with 174 people submitted the paperwork. In addition, four people are running for mayor of Komsomolsk. (GTRK Dalnevostochnaya TV "Vesti Khabarovsk" news, Khabarovsk, 1045 gmt 6 Aug 19)
+Local experts forecast unprecedented fight for the seat of Komsomolsk-on-Amur mayor: for the first time in the past 20 years there are four candidates running for the post, AmurMedia news agency reported on 10 August. They are 22-year-old businessman Emil Yenin of Motherland, Alexei Razin of United Russia, the LDPR's Alexander Zhornik and self-nominee Alexander Ilyin.
+"For many years United Russia has nominated one real candidate and obvious spoilers seeking to create an illusion of competition. This year is different: there are four candidates and each of them has his own strengths," political analyst Grigory Govorukhin said.
+Though Yenin seems to be the least interesting candidate for voters an effective campaign could attract attention and make his victory possible.
+Zhornik is an experienced manager, besides being an LDPR member is now an advantage so he may be supported by a quite large vote, Govorukhin said.
+As for Alexei Razin, who is deputy head of the Komsomolsk-on-Amur administration, he has the advantage of being an official in the current administration, which may appeal to some voters, but being a member of United Russia may play against him.
+Ilyin, who is advisor to the head of the KnAAZ aviation plant may win over the support of people working at the plant. So, the results of the mayor election are quite unpredictable, Govorukhin concluded. (AmurMedia news agency, Khabarovsk, 10 Aug 19)
+At a meeting with candidates running for seats at the regional legislative assembly governor Furgal suggested reducing the number of payable positions at the assembly, AmurMedia news agency reported on 6 August. Furgal mentioned his experience of reducing the number of high-ranking officials at the regional government and suggested cutting the number of payable positions from 18 to 12 in order to save budget money and to show that candidates are willing to become deputies not for money or privileges.
+Communists backed the proposal while United Russia candidates suggested reducing the number of committees instead which would also result in a cut in expenses. In conclusion, the governor noted that it was just a proposal and it was up to them to decide. (AmurMedia news agency, Khabarovsk, 0945 gmt 6 Aug 19)
+Governor Sergei Furgal has met candidates running in regional and municipal elections, AmurMedia news agency reported on 6 August. Candidates running from the CPRF and A Just Russia party have strongly criticised the electoral commissions for refusals to register candidates.
+A Just Russia regional branch leader Igor Glukhov complained that the electoral commissions had used formalities to deny registration to candidates, most of them being nominated by opposition parties, and suggested that the elections be postponed in order to amend election laws. (AmurMedia news agency, Khabarovsk, 1204 gmt 6 Aug 19)
+On 7 August AmurMedia reported on a planned visit of the secretary of United Russia's general council and deputy chairman of the Federation Council, Andrei Turchak, to Khabarovsk. Local experts linked the high-ranking party official's visit to the upcoming elections. Turchak is likely to try to ensure governor Furgal's assistance for United Russia candidates at the elections.
+"Furgal is a man of the system and he has proven that: he is working under the presidential administration's control so it turns a blind eye to some of his blunders," political analyst Ildus Yarulin said.
+Turchak's visit may be linked to weak positions of United Russia's candidate Viktoria Tsyganova running in a by-election to the State Duma in the Komsomolsk electoral district, political analyst Grigory Govorukhin said. Turchak's visit is bound to change the balance of political forces in the elections, the experts agreed and forecast that the governor and the United Russia official may agree on some compromise figure. (AmurMedia news agency, Khabarovsk, 0008 gmt 7 Aug 19)
+Political
+After thorough questioning the regional legislative assembly's committee on local governments has approved two candidacies for key posts in the regional government, Gubernia TV reported on 9 August. Governor Furgal has nominated Muscovite Yuri Zolochevsky for the position of first deputy chairman of the regional government in charge of economic issues and local Vladimir Khlapov for the position of first deputy chairman of the regional government and chief of staff of governor and government.
+Four out of five committee members, excluding Viktor Postnikov (CPRF), voted for Zolochevsky and five out of five voted for Khlapov. (Gubernia TV "Novosti" news, Khabarovsk, 0900 gmt 9 Aug 19; Khabarovsky Krai Segodnya news agency, Khabarovsk, 9 Aug 19)
+Prime Minister Dmitry Medvedev has ordered to draft proposals on the renovation of the airport terminal in the region's Sovetskaya Gavan settlement, AmurMedia news agency reported on 9 August. The regional government is to coordinate work on the terminal renovation with the Far East Development Ministry, Transport Ministry and Finance Ministry. (AmurMedia news agency, Khabarovsk, 0130 gmt 9 Aug 19)
+The administration of Sovetskaya Gavan District has denied rumours about the district head's resignation, AmurMedia news agency reported on 6 August. Rumours that district head Yuri Bukhryakov had signed a resignation letter started circulating in social networks late on 5 August. Sources close to Bukhryakov said that he had not written the resignation letter but was seriously considering the possibility. A source in the regional government said that Bukhryakov had mentioned the resignation several times before: "It is his way of exerting pressure on the regional government aimed at speeding up the settlement of some financial problems relating to the payments for fuel".
+A later report, however, confirmed the resignation. (AmurMedia news agency, Khabarovsk, 0255 gmt 6 Aug 19 and 0353 gmt 7 Aug 19)
+Fire at children's camp
+The Khabarovsk territorial court has upheld the decision to arrest Vitaly Burlakov, the owner of the Kholdomi recreation centre, where a deadly fire killed four children in a summer camp on 23 July, GTRK Dalnevostochnaya TV reported on 8 August. The same decision was passed in relation to the director of the children's camp, Maxim Kuznetsov, and fire inspector Eduard Novgorodtsev.
+Burlakov and Kuznetsov are facing prosecution over causing death by negligence and rendering services that do not meet safety requirements while Novgorodtsev is charged with negligence. (GTRK Dalnevostochnaya TV "Vesti Khabarovsk" news, Khabarovsk, 1045 gmt 8 Aug 19)
+(BBC Monitoring note: The fire broke out at night and burned down 20 of 26 tents. The children reportedly used electric warm wind equipment to heat the premises and dry clothes which eventually caused the fire.)
+The staff of the Kholdomi recreation centre has asked governor Sergei Furgal for assistance, AmurMedia news agency reported on 8 August. After the deadly fire that claimed the lives of four children, a state of emergency was imposed at the Kholdomi centre and the company's operation was suspended. The company's bank accounts have been frozen so the company cannot start paying compensations to the victims and return money to parents of children whose summer camp shift had to be cancelled, staff of the JSC Ekstrim Servis (Extreme Service), one of the founders of the Kholdomi recreation centre, wrote in the letter and asked the governor to specify when the state of emergency will be lifted.
+Governor Furgal decided to lift the state of emergency, Khabarovsky Krai Segodnya news agency reported on 9 August. (AmurMedia news agency, Khabarovsk, 0100 gmt 8 Aug 19; Khabarovsky Krai Segodnya news agency, Khabarovsk, 9 Aug 19)
+Governor's ratings
+Khabarovsk Territory governor Sergei Furgal has gone up 30 positions in a media rating among heads of Russian regions in July, AmurMedia news agency reported on 9 August. The rating was compiled by the Medialogia media analysis company and it now ranks Furgal No 16. Experts attribute the change to Furgal's actions after the deadly fire in a summer camp in Solnechny District. He imposed a state of emergency on the territory of the recreation centre and suspended regional deputy education and science minister Alexander Korol.
+Furgal's efforts aimed at averting the floods and his imposing a state of emergency over high water also contributed to the improvement of his position in the media rating.
+Furgal also went up in the rating of Far Eastern heads and ranked second following head of the Republic of Sakha (Yakutia) Aysen Nikolayev. (AmurMedia news agency, Khabarovsk, 0230 gmt 9 Aug 19)
+Source: BBC Monitoring 11 Aug 19
+ 
+Load-Date: August 19, 2019"""
 
-    name: str
-    text: str
-    num_basin: int
-    num_event: int
-    num_action: int
-    output: Output
+ARTICLE_051_E1 = """Germany  s Cooperation Agency (GTZ) will provide 9.5 million euros (RD$245 million) in financial aid for a program which seeks to guarantee Dominican Republic  s long term potable water supply, and the basin of the Artibonito river, which flows though Haiti. 
+The Program to Protect and Manage the Sustainable Use of the Natural Resources in Hydrographic Basins (PROGEREN) began in March, 2003 with 13.5 million euros contributed by the GTZ. 
+Economy vice minister America Bastidas and GTZ director Hans Peter Debelius signed the agreement Wednesday, for the program which the Environment Ministry will execute. 
+The program  s third phase will last until February, 2012 and the GTZ is contributing the remaining 9.5 million Euros to conclude it, the Economy Ministry said in a statement. 
+The aid aims to protect the North Yaque and Artibonito river basins, as part of the program which seeks to decentralize the Environment Ministry to spur base organisms such as the Provincial Environment Councils to participate in the rivers   conservation.
+Ltd.
+ 
+Load-Date: February 28, 2010"""
 
-SIMPLE_COMMON1 = Article(
-    name="ETOS_194 (QC_010)",
-    text="""\
+ARTICLE_083_E1 = """PLANS are underway to put in place a trans-boundary fisheries management plan for the Okavango River, which is a shared freshwater course.
+The Okavango River is shared by namely Namibia, Angola and Botswana and provides a lifeline for thousands of people who live along it. Early last year, the Southern Africa Environment Programme (Sarep) organised a one-day workshop in Rundu where Dennis Tweedle from the Namibia Nature Foundation (NNF) gave a presentation on the Draft Transboundary Fisheries Management Plan.
+The proposed trans-boundary fisheries management plan for the Okavango River Basin seeks to establish a joint management system to ensure the conservation and sustainable use of the Okavango River for the benefit of local communities.
+"The plan will therefore provide a foundation for the responsible co-management of the shared fish stock between Namibia, Angola and Botswana in the Cubango-Okavango River Basin. In order to achieve this, information on the yield and harvesting biodiversity date of the fish population and institutional linkages between scientists in Angola, Namibia and Botswana must be obtained," said the Deputy Director in the Ministry of Fisheries and Marine Resources, Reiner Burger.
+Currently, the Okavango River is facing a number of challenges, which could weaken its water quality. Residents of nearby villages such as Calai (in Angola) are seen everyday bathing and washing their clothes in the river. However, this can only be stopped if people are provided with potable water and sanitation. Over-fishing, poaching of hippos and crocodiles and deforestation (along the Okavango River) are also serious problems facing the river. Christopher Munwela, the chief fisheries scientist in the Ministry of Fisheries and Marine Resources has confirmed that the draft transboundary fisheries management plan has been developed. However, he was quick to add that a few things still need to be amended before the plan can be approved by the three riparian countries.
+"We are still going to meet to iron out a few things," said Munwela. The Rundu workshop was attended by officials from Fisheries Ministries in Namibia, Angola, Botswana, University of Namibia, lodge owners, Namibia Nature Foundation and the South African Institute of Aquatic Biodiversity.
+* Absalom Shigwedha is a Namibian freelance environmental journalist.
+ 
+Load-Date: February 10, 2014"""
 
-    """.strip()
-)
+ARTICLE_018_E1 = """UNITED NATIONS, May 12 -- The United Nations Educational, Scientific and Cultural Organization issued the following news release: The UNESCO Regional Office for Southern Africa will hold an inception workshop for the newly launched project, "A community focused flood Early Warning System for the Buzi-Pungwe and Save (BuPuSa) Transboundary River Basins" in Maputo, Mozambique on 18 May 2022. The 3-year project is being implemented in Mozambique and Zimbabwe by UNESCO and funded by the Austrian Development Agency (ADA) with funds of the Austrian Development Cooperation. The project was conceptualised in response to the observed increased frequency, duration and intensity of natural disasters and extreme weather conditions in recent years, such as landslides, floods, tropical cyclones, droughts and prolonged dry spells that negatively impact the livelihoods of the people in the two countries. The project therefore seeks to reduce the vulnerability of communities in the BuPuSa transboundary river basins to floods, by providing an effective flood risk assessment, monitoring and early warning system, increased capacity and knowledge base, and inclusive communication strategy and action plans. The project activities are designed along five work packages that contribute to five different outputs. The Work Packages are: * Flood Risk Assessment Mapping * Flood monitoring and early warning system development * Early warning communication and dissemination * Public awareness raising on flood risk management and documentation of lessons learnt * Strengthening local capacities on flood risk assessment, monitoring and early warning Specifically, the inception meeting will seek to: * Present the lessons learnt and approaches developed in the project 'Comprehensive Resilience Building in Chipinge and Chimanimani districts' which was implemented in Zimbabwe from March 2021 to March 2022, under the Zimbabwe Idai Recovery Project (ZIRP) and funded by the World Bank, and discuss possibilities of scaling up;* Officially inform representatives of government agencies and/or departments in charge of water resources, disaster risk reduction and climate of the upcoming project 'A Community-focused Flood Early Warning System for the BuPuSa Transboundary River Basins' and its activities;* Discuss and finalise priority activities and agree on the project work plan; and* Discuss and agree on implementation mechanisms, including coordination and roles and responsibilities of the relevant stakeholders. It is expected that representatives from government, the private sector, disaster management institutes, water management institutes, academia, climate and meteorology, development partners, NGOs and community representatives will take part in this workshop.The workshop will adopt a hybrid format where some participants will attend physically while others will participate virtually."""
+
+ARTICLE_013_E1 = """This was said by minister of agriculture, water and land reform Calle Schlettwein when he commissioned the reconstructed Omahenene-Olushandja canal on Wednesday. This is a section of the open water canal that conveys water for about 150km from Calueque Dam to the Oshakati Water Treatment Plant. Schlettwein said the projects, approved by government, are an absolute requirement to achieve national developmental goals of access to water by all Namibian citizens. With the establishment of the Cabinet committee on Water Supply Security and the Technical Committee of Experts by president Hage Geingob, the water sector has been receiving priority funding to upgrade water supply infrastructure, including this canal, he said. Plans are already underway to refurbish all weak sections along the entire canal up to Oshakati, he said. The nation should expect new bids to be advertised soon for more works on subsequent sections of the canal. Schlettwein said the government had also made funds available to NamWater for water projects, and the water utility was finalising designs for major projects in northern Namibia, such as new water treatment plants at Oshakati and Rundu, as well as pipeline networks and related infrastructure to extract water from the Ohangwena II Aquifer. Construction tenders for those projects are expected to be advertised during the first quarter of 2023, he said. The funds for these projects were secured from the African Development Bank (AfDB) and further funding arrangements are being finalised with the German Development Bank (KfW), Schlettwein said. Two contractors had been awarded tenders to reconstruct this part of the canal. Section A between Olushandja Dam and the bridge on the Outapi-Ruacana Road was awarded to Radial Truss Industries in a joint venture with Imperative Construction and Engineering, and Section B, which lies between the Omahenene border post and the bridge, was awarded to Brumar Construction. The two contractors commenced work in February 2021 and according to Schlettwein, the once dilapidated canal has now been replaced by a sturdy new structure that is expected to last for many more years to come. Schlettwein said the canal, constructed in the 1970s, bears historic and socio-economic significance. The majority of our citizens in Omusati, Oshana, Ohangwena and Oshikoto get fresh water from the Calueque Dam in southern Angola, through this canal. Along the 150km stretch, the canal is a source of water for livestock and an enabler of horticulture activities for small scale farmers, he said. It is for this reason that one of the government's largest green scheme projects - the Etunda Irrigation Scheme - was developed in this region and is being supplied with water from this canal, he said. Stressing that water infrastructure operation and maintenance is a costly exercise, Schlettwein urged the community to look after the water infrastructure and not to vandalise it. He appealed to traditional authorities, the police and community leaders to continue taking stern action against those found vandalising the canal."""
+
+ARTICLE_065_E1 = """SOURCE: La Razon (Bolivia), 10 Jun 2019, online
+ABSTRACT
+Chile has asked the International Court of Justice (ICJ) for an extra three months to provide a written response to Bolivian reports in the Silala River case, despite the fact that the phase for the presentation of written documents has been concluded. Diego Pary, Bolivia's Foreign Affairs Minister, has stated that it will demand the right to reply in case the ICJ allows Chile to present a new report, which would also postpone the start of oral proceedings. Pary added that Bolivia had presented a counter claim to defend the sovereignty of Silala waters, located in Quetena Chico canton, Potosi department.
+ 
+Load-Date: June 12, 2019"""
+
+# All articles keyed by Global Event ID
+ARTICLES = {
+    "010_E1": ARTICLE_010_E1,
+    "028_E1": ARTICLE_028_E1,
+    "039_E1": ARTICLE_039_E1,
+    "047_E1": ARTICLE_047_E1,
+    "051_E1": ARTICLE_051_E1,
+    "083_E1": ARTICLE_083_E1,
+    "018_E1": ARTICLE_018_E1,
+    "013_E1": ARTICLE_013_E1,
+    "065_E1": ARTICLE_065_E1,
+}
+
+# Global Event IDs grouped by the section of the source document
+ARTICLES_BY_CATEGORY = {
+    "simple_common": {"010_E1": ARTICLE_010_E1, "028_E1": ARTICLE_028_E1, "039_E1": ARTICLE_039_E1, "047_E1": ARTICLE_047_E1, "051_E1": ARTICLE_051_E1, "083_E1": ARTICLE_083_E1},
+    "complicated_common": {"018_E1": ARTICLE_018_E1, "013_E1": ARTICLE_013_E1},
+    "simple_edge_case": {"065_E1": ARTICLE_065_E1},
+}

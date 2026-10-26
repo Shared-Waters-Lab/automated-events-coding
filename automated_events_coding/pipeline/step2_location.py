@@ -45,7 +45,7 @@ BCODE_UNKN = "UNKN"  # basin not identifiable from the place names
 BCODE_GNRL = "GNRL"  # no place names provided at all
 
 # need a list of terms to exclude when doing the look up
-EXCLUSION_TERMS = ["Dam", "Province", "Water Supply Scheme", "River"]
+EXCLUSION_TERMS = ["dam", "province", "water supply scheme", "river", "south", "earth canal", "basin"]
 
 
 def _split_semicolon_list(value: object) -> list[str]:
@@ -105,14 +105,15 @@ def lookup_country_basin(place_names: list[str]) -> list[CountryBasinLookup]:
 
     for placename in place_names:
         if placename['placename_type'] == "non-country":
-            clean_placename = " ".join([word for word in placename['placename'].split(" ") if word not in EXCLUSION_TERMS]).strip()
+            clean_placename = " ".join([word for word in placename['placename'].split(" ") if word.lower() not in EXCLUSION_TERMS]).strip()
             for bcode in country_voting:
                 is_in_this_basin = basins[basins.BCODE == bcode]["trib_bname"].apply(lambda x: x.split("; ")).apply(lambda x: clean_placename in x).any()
                 if is_in_this_basin:
                     basin_voting[bcode] += country_voting[bcode]
 
-    max_vote = max(basin_voting.values())
-    max_basins = [b for b in basin_voting.items() if b[1] == max_vote]
+    final_voting = basin_voting if len(basin_voting) > 0 else country_voting
+    max_vote = max(final_voting.values())
+    max_basins = [b for b in final_voting.items() if b[1] == max_vote]
     max_basins = dict(max_basins)
 
     rip_countries = []

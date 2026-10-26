@@ -31,7 +31,7 @@ Use the following definition to inform your response:
 * When an action is ambigious use the exact language from the article.
 * Pay close attention to what the event really is. To do so be sure to track the verb tenses used. Do not cut up the event into different parts. Instead use your knowledge of news articles to accurately determine each event.
 * For each article, try to keep your number of events from 2 to 7, depending of course on the length of the article. 
-* Be sure to include names of relevant people and places. These will be used in downstream processing so it is important that you list these as accurately as possible. 
+* Be sure to include names of relevant people and places. This includes relevant geographic information that could help us pin down where is happened, outside of just a country name. These will be used in downstream processing so it is important that you list these as accurately as possible. 
 """
 
 # Step 2 - Location Extraction
@@ -60,18 +60,60 @@ You will be given a description of an event and an article from which that event
 # Input: Event + Step 2.1 + Step 2.2 outputs
 # Output: see schemas.EventLead -- multiday, date, issue_area, scale_of_impact,
 # groundwater, infrastructure_involved, jbi_*, non_basin_entity_*
+# might need to check proper name groundwater 
 STEP3_EVENT_LEAD = """\
 # Event-lead Extraction
-
-<!-- TODO: task instructions -->
-# 
-
-
+## Background
+You will be given a description of an event and an article from which that event is drawn. You will need to extract key pieces of information about that event and with it populate a structured response.
+## Definitions
+* Multiday: This is a boolean value which represents whether or not this event happened over multiple days. It will be `false` if the event happens on just a single day. It will be `true` otherwise, including events in which a date range is not explicitly given.  
+* Year: This is an string value which represents the year that the event took place in. This is not necessarily the year of the article's publication, but in many cases they will be the same. This is because these articles are about events that happen current to the article's publication. For example, if the article only reports a day of the week or month, then assume that this reference is relative the publication year. Years are expressed as four digits (YYYY). If an event occurs across multiple years, the first date's year should be used. 
+* Month: This is an string value which represents the month that the event took place in. This is not the month of the article's publication. Unlike in the case of the year field above, do not assume that this is happening on the same month as the publication month. In cases where the article mentioned relative dates (ex. "yesterday", "last week", "Tuesday"), attempt to determine the month based on the publication month and these markers. Months are expressed as two digits (MM). If an event occurs across multiple months, the first date's month should be used. In instances where the month is unknown, use XX.
+* Day: This is an string value which represents the day that the event took place in. This is not the day of the article's publication. Unlike in the case of the year field above, do not assume that this is happening on the same day. In cases where the article mentioned relative dates (ex. "yesterday", "last week", "Tuesday"), attempt to determine the day based on the publication day and these markers. Days are expressed as two digits (DD). If an event occurs across multiple days, the first day's date should be used. In instances where the day is unknown, use XX.
+* Groundwater: This is a boolean value which represents whether or not an *event* is about, mentions, or references groundwater. The article may have information about groundwater in it, but if the event is not specifically about groundwater, report `false`. If the event is about, mentions, references groundwater, report `true`. This includes events solely about groundwater as well as both surface and groundwater combined.
+* Infrastructure: This is a boolean value which represents whether or not an *event* revolves around or addresses water infrastructure. The article may have information about water infrastructure in it, but if the event does not revolves around water infrastructure, then report `false`. If the event revolves around water infrastructure, report `true`. This does not include tangential mentions of water infrastructure. The water infrastructure must be central to the event. 
+* Issue area: Issue area identifies the main topical, content, and/or sectoral issues addressed in the *event*, not the article itself. The issue area covers the topical area that is the focus of the event. More than one issue area can be listed, separated by semi-colon, but not more than three. It is suitable if you only report one issue area if that is the only issue area applicable to the event. Do not feel that you need to add more issue areas. This should not be an exhaustive list of all issues addressed in the *event*, but include the main areas specified. Areas:
+  - 0: Not enough information to determine. You are not likely to use this.
+  - Water Quality: Main area of focus on water quality concerns, including diverse sources and types of contaminants and pollutants.
+  - Water Quantity: Main area of focus is on water quantity, including allocation.  
+  - Fisheries: Main area of focus is on fisheries as an economic and/or subsistence activity.  
+  - Hydropower: Main area of focus is on hydropower and hydroelectric dams and related facilities.
+  - Domestic/Municipal: Main area of focus is on domestic and/or municipal water, which can include urban and rural water supplies and drinking water.
+  - Navigation: Main area of focus is on navigation, shipping, and water transportation.  
+  - Agriculture: Main area of focus is on agriculture, which can include issues related to both water quality and quantity, such as irrigation, agricultural runoff, and other agricultural uses.  
+  - Forestry and Timber: Main area of focus is on forestry and timber as an economic activity. 
+  - Infrastructure: Main area of focus is on the planning, development, construction, operation, and/or maintenance of water-related infrastructure.  
+  - Climate Change: Main area of focus or area of explicit commitment is on climate change.  
+  - Environment: Main area of focus is on environmental issues, this is broadly understood and can include biodiversity, invasive species, fish species and habitat, ecosystem protection, ecosystem restoration, forest protection, erosion, etc.  
+  - Flood Management: Main area of focus is on the management of floods or high flow periods. This can include forecasting, warning, preparation, control measures, flood response, and flood relief.  
+  - Drought Management: Main area of focus is on the management of drought or low flow/precipitation periods. This can include drought prediction, warning, drought control/mitigation measures, responses, and drought relief.  
+  - Socioeconomic Development: Main area of focus is on broader aspects of social and economic development or for the purposes of social and economic development. This can include efforts towards social and economic progress, poverty eradication, industrial development, trade, non-water transportation and telecommunication development, non-hydropower energy, mining, and tourism.  
+  - Funding and Financing: Main area of focus is on financial arrangements or issues. Includes both funding and financing arrangements. Funding is defined as monetary support not needing repayment. Financing is defined as monetary support needing repayment.  
+  - Territorial and Border Issues: Main area of focus is on the borders and/or territorial issues, including rivers as contiguous borders and territorial area claims within a shared water body (river island) or due to a changing border watercourse (meander).  
+* Scale of Impact: This field indicates the scale of the event's impact on adjacent human populations. Note that “impact” is descriptive of what entity/entities are affected and at what levels by the event and its outcome, unrelated to the number of entities involved. This is unlikely to be explicitly be described in the article or event. You will need to extrapolate it from the context of the event and reference the article for more information when needed. Only report one value. Utilizes these codes:
+  - Local: Impacts a singular community or individuals. Example: Development funding for clean water wells. 
+  - Sub-basin: Impacts one part of a basin. Example: Construction of a dam on a tributary only impacted some of the riparians. 
+  - Basin: Impacts the basin as a whole. Example: U.S.-Canada agreements over Great Lakes water quality. 
+  - Regional: Impacts on two or more basins in the same region. Example: Electricity grid linkage between the Congo and Nile River basins. 
+  - Global: Impacts more than half of the TFDD basins worldwide. Unlikely to be used. Example: Convention on the Protection and Use of Transboundary Watercourses and International Lakes. 
 ## Output Format
 
 ```json
-
+[
+  {
+    "multiday": bool, // multiday entry
+    "year": str, // year of the event
+    "month": str, // month of the event
+    "day": str, // day of the event
+    "groundwater": bool, // groundwater entry
+    "infrastructure": bool, // infrastructure entry
+    "issue_area": str, // issue area entry
+    "scale_of_impact": str, // scale of impact entry
+  }
+]
 ```
+## Notes
+* Be careful of any date preceded by the phrase "Load-Date". This is the date that this article was loaded into the news database from which we took this article. It is very rare that this will be the date that any of the events in the article happen. In almost all cases, you can simply ignore it.
 """
 
 # Step 4 - (Inter)action Extraction
