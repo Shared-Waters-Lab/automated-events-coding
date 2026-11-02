@@ -126,8 +126,8 @@ STEP4_1_ENTITY_EXTRACTION = """\
 ## Background
 You will be given a news article and an event summary taken from it. You will also be given a list of possible entities which could interact in this event. Based on this information, you will return a list of potential entities who could have interacted in this event.
 ## Definitions
-* Basin entities: These are entities, usually states, which are riparian to the given basin and who may or may not have interacted with eachother or a non-basin entity in the context of the given event.
-* Non-Basin entities: These are entities, usually non-governmetal organizations, multilateral finance or development organization, or non state entities, which have interacted with eachother or a basin entity in the context of the given event.
+* Basin entities: These are entities, usually states, which may be riparian to the given basin and who may or may not have interacted with eachother or a non-basin entity in the context of the given event.
+* Non-Basin entities: These are entities, usually non-governmetal organizations, multilateral finance or development organization, or non-state entities, which have interacted with eachother or a basin entity in the context of the given event.
 * Do not list the following:
   - Names of people, only the organizations and/or states which they represent. 
     - If the person in question is the head of state, president, prime minister or an ambassador, for these purposes, they simply represent the state itself and do not need to be listed as a separate entity.
@@ -149,10 +149,15 @@ You will be given a news article and an event summary taken from it. You will al
 * Ensure that you list them in a flat list in the JSON format above. 
 """
 
-# Step 4.2 - Interaction Extraction
+# Step 4.2 - Interaction or Action
+# Input: Event text, potential entities per event 
+# Output: I, R, M, O, N codes
+
+
+# Step 4.3 - Interaction Extraction
 # Input: Event text, potential entities per event 
 # Output: Interaction summary, dyad entity code
-STEP4_2_DYAD_EXTRACTION = """\
+STEP4_3_DYAD_EXTRACTION = """\
 # Basin-Event Interactions
 ## Background
 You will be given in the text of an event and a set of two entities, which will be either explicitly or implicitly mentioned in the text. You will provide a summary of their, and only their, interactions, as well as a interaction score according the Basins at Risk (BAR) scale, as defined below.
