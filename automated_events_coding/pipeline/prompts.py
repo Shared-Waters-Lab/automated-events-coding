@@ -40,7 +40,7 @@ Use the following definition to inform your response:
 STEP2_LOCATION_EXTRACTION = """\
 # Location Extraction
 ## Background
-You will be given a description of an event and an article from which that event is drawn. You will need to extract placenames of where the *event* is occuring. Do not just extract placenames from the article. Rather, use it only to inform your context for the event. 
+You will be given a description of an event and an article from which that event is drawn. You will need to extract placenames of where the *event* is occuring. Do not just extract placenames from the article. Rather, use it only to inform your context for the event. In cases where a given event does not have a country mentioned in it, use the article context to provide the country name for each of non-country placenames.
 ## Definitions
 * Placenames: Only collect placenames that refer to water bodies (including but not limited to rivers, tributaries, dams and other infrastructure and project titles), as well as country, city names. Pay close attention to abbreviations that occur in the article text and event. 
 * Please convert demonyms to their country names only when the event is occuring in that country. For example, if you extract "Namibian", convert it first to "Namibia". Otherwise, ignore demonyms entirely. 
@@ -54,6 +54,8 @@ You will be given a description of an event and an article from which that event
   }
 ]
 ```
+## Notes
+* Ensure that you provide at least one country in your response. If it is not directly mentioned in the event, use the rest of the article to determine the relevant country.
 """
 
 # Step 3 - Event-lead Extraction
@@ -116,12 +118,71 @@ You will be given a description of an event and an article from which that event
 * Be careful of any date preceded by the phrase "Load-Date". This is the date that this article was loaded into the news database from which we took this article. It is very rare that this will be the date that any of the events in the article happen. In almost all cases, you can simply ignore it.
 """
 
-# Step 4 - (Inter)action Extraction
-# Input: single Event
-# Output: interactions, actors, summary, type
-STEP4_INTERACTION_EXTRACTION = """\
-# (Inter)action Extraction
+# Step 4.1 - Entity Extraction
+# Input: Article, Riparian Countries, Event text
+# Output: Entity list
+STEP4_1_ENTITY_EXTRACTION = """\
+# Entity Extraction Task
+## Background
+You will be given a news article and an event summary taken from it. You will also be given a list of possible entities which could interact in this event. Based on this information, you will return a list of potential entities who could have interacted in this event.
+## Definitions
+* Basin entities: These are entities, usually states, which are riparian to the given basin and who may or may not have interacted with eachother or a non-basin entity in the context of the given event.
+* Non-Basin entities: These are entities, usually non-governmetal organizations, multilateral finance or development organization, or non state entities, which have interacted with eachother or a basin entity in the context of the given event.
+* Do not list the following:
+  - Names of people, only the organizations and/or states which they represent. 
+    - If the person in question is the head of state, president, prime minister or an ambassador, for these purposes, they simply represent the state itself and do not need to be listed as a separate entity.
+    - As a result, do not list any entities like "Office of the Prime Minister" or "Office of the President".
+    - Do not list regions or provinces mentioned in the event, only the larger entity that they are part of.  
+  - Dates or times
+  - Quantitative data
+  - Concepts
+## Output format
+```json 
+{
+  "entity_list":[
+    // list potential entities here
+  ]
+}
+```
+## Notes
+* Recall that you are simply listing *potential* entities in this step. These will be used for downstream processing. We need you need you to be both discerning but also flexible. 
+* Ensure that you list them in a flat list in the JSON format above. 
+"""
 
+# Step 4.2 - Interaction Extraction
+# Input: Event text, potential entities per event 
+# Output: Interaction summary, dyad entity code
+STEP4_2_DYAD_EXTRACTION = """\
+# Basin-Event Interactions
+## Background
+You will be given in the text of an event and a set of two entities, which will be either explicitly or implicitly mentioned in the text. You will provide a summary of their, and only their, interactions, as well as a interaction score according the Basins at Risk (BAR) scale, as defined below.
+## Definitions
+* Interaction summary: A detailed description that explicitly identifies the action/interaction that is coded between the Entities in the BAR Scale. If possible, note the underlying issue or difference of perception between the actors.
+* Basins at Risk (BAR) Scale: A numerical score ranging from -7 to +7, with -7 denoting the most negative events, 0 denoting neutral events, and + 7 denoting the most positive events. See the table below describing the "Water Interaction Intensity Scale" for descriptions of the updated BAR Scale categories. 
+  - -7: Formal Declaration of War : Water is the trigger/cause of the war declaration (not water as a weapon/casualty).
+  - -6: Extensive War Acts: Formal withdrawal of basin treaty (i.e., does not need to be basin wide, butcannot be short-term or over just a single issue); formal withdrawal from an RBO; use of force at large scale (e.g., blowing-up a dam, occupation to control water source/infrastructure, destroy wells); use of water as a weapon (e.g., Israel-Gaza; but only if it meets inclusion criteria of conflict over water).
+  - -5: Small Scale Political -Military Hostile Acts: Freezing, suspending, or the abeyance of a basin treaty (i.e., does not need to be basin wide, but cannot be short-term or over just a single issue); freezing, suspending, or the abeyance of participation in an RBO; formal, explicit leaving of a JBI; small-scale violence (e.g., border skirmishes, local transboundary violence).
+  - -4: Threats of Force/Taking Economic-Diplomatic Hostile Acts: Pausing/freezing participation in a JBI; taking economic/diplomatic hostile actions (e.g., recalling ambassador, cutting trade ties, cutting access to other resources, such as gas); threatening the use of force (e.g., statements, mobilizing troops); the 'cutting off' of flow of water (i.e., may not 100 percent cut flow, but the verbiage implies hostile intention, e.g., India/Pakistan 2025).
+  - -3: Threats of Economic -Diplomatic Hostile Acts : Threatening to take economic/diplomatic hostile actions (e.g., recalling ambassador, cutting trade ties, cutting access to other resources, such as gas); unilateral construction of water projects against another country's protests/opposition; reducing the flow of water to another country (i.e., reduction of flow is secondary and not an intended hostile act by actor, e.g., reducing flow during filling of GERD between Ethiopia-Egypt).
+  - -2: Strong Expressions Displaying Hostility in Interaction: Verbal or written expression of political opposition at a high level (e.g., head of state, foreign minister); cancellation of scheduled meetings between officials, visits by ministers, or regularly scheduled or ad hoc political level RBO/JBI meetings.
+  - -1: Mild Expressions Displaying Discord in Interaction: Verbal or written expression of opposition/protest at a lower level ( e.g., technical officials , subnational political actors); cancelling of ad hoc meetings between officials, visits by ministers, or regularly scheduled or ad hoc technical level RBO/JBI meetings; media statements of opposition (including social media); failure to reach agreement but intention is still present to come to an agreement.
+  - 0: Neutral or non-significant acts for the interstate situation: Rhetorical policy statements; indifference statements; no comment statements (e.g., statements of non -commitment in a conflict/cooperation between other states by a third party or other basin state).
+  - +1: Mild Expressions Displaying Interest/Support in Interactions: Verbal or written expressions of support at a lower level (e.g., technical officials, subnational political actors); holding (or agreeing to hold) ad hoc meetings between officials, visits by ministers; media statements of support (including social media).
+  - +2: Strong Expressions Displaying Interest/Support in Interactions: Holding, attending, and/or participating in regularly scheduled or ad hoc technical-level RBO/JBI meetings; holding of negotiations/talks or other political level non RBO/JBI meetings; verbal or written expression of political support at a high level (e.g., head of state, foreign minister).
+  - +3: Moderate Economic-Political Actions Displaying Interest/Support: Holding, attending, and/or participating in regularly scheduled or ad hoc RBO/JBI Political Level Meetings; financial agreement involving external actors or foreign aid to the basin; joint site visit to infrastructure/projects in the basin; formalized collaboration with non-state actors (e.g., NGOs/CSOs/Private Actors); formal verbal or written expression of apology for action/statement at a high level (e.g., head of state, foreign minister).
+  - +4: Strong Economic-Political Actions Displaying Interest/Support: Creation of a joint management plan, basin management plan, etc.; financial agreement between the basin actors; water sale agreements between actors; a singular cooperative action (e.g., releasing flow, starting a joint project, implementing pollution reduction strategy); signing an MOU, declaration, or other non-binding agreement between actors.
+  - +5: Minor Water Alliance: Establishing a JBI (Note: If created by a treaty, then code the signing of the treaty and establishing the JBI as two separate events); signing a legally binding single-issue or short-term water treaty (i.e., does not need to be basin wide, but must be short -term or over just a single issue).
+  - +6: Major Basin Alliance: Establishing jointly owned water infrastructure through a formal, legally binding arrangement; signing a legally binding formal basin treaty (i.e., does not need to be basin wide, but cannot be short-term or over just a single issu e); establishing an RBO (Note if created by a treaty, then code the signing of the treaty and establishing of the RBO as two separate events).
+  - +7: Voluntary Unification into One Nation: Merging voluntarily into one nation (state); forming one nation with one legally binding government because of water. 
+## Output format
+```json
+[
+  {
+    "interaction_summary": str,
+    "dyad_score": str
+  }
+]
+```
 """
 
 # Step 5.1 - Action ID

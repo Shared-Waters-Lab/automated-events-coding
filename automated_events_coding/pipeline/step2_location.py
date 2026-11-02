@@ -89,7 +89,7 @@ def lookup_country_basin(place_names: list[str]) -> list[CountryBasinLookup]:
 
     """
     if not place_names:
-        return CountryBasinLookup(bcode=BCODE_GNRL, ccodes=[])
+        return [CountryBasinLookup(bcode=BCODE_UNKN, ccodes=[])]
 
     basins, countries = _load_gazetteer()
 
@@ -97,8 +97,7 @@ def lookup_country_basin(place_names: list[str]) -> list[CountryBasinLookup]:
     basin_voting = defaultdict(int)
 
     for placename in place_names:
-        if placename['placename_type'] == "country":
-            clean_placename = placename['placename'].strip()
+        clean_placename = placename['placename'].strip()
         poss_basins = basins[basins["Riparian Countries"].apply(lambda x: clean_placename in x.split("; "))].BCODE.to_list()
         for basin in poss_basins:
             country_voting[basin] += 1
@@ -112,6 +111,9 @@ def lookup_country_basin(place_names: list[str]) -> list[CountryBasinLookup]:
                     basin_voting[bcode] += country_voting[bcode]
 
     final_voting = basin_voting if len(basin_voting) > 0 else country_voting
+    if len(final_voting) == 0:
+        return [CountryBasinLookup(bcode=BCODE_UNKN, ccodes=[])]
+    
     max_vote = max(final_voting.values())
     max_basins = [b for b in final_voting.items() if b[1] == max_vote]
     max_basins = dict(max_basins)
