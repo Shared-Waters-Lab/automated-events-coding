@@ -45,7 +45,7 @@ BCODE_UNKN = "UNKN"  # basin not identifiable from the place names
 BCODE_GNRL = "GNRL"  # no place names provided at all
 
 # need a list of terms to exclude when doing the look up
-EXCLUSION_TERMS = ["dam", "province", "water supply scheme", "river", "south", "earth canal", "basin"]
+EXCLUSION_TERMS = ["dam", "province", "water supply scheme", "river", "south", "earth canal", "basin", "province", "territory", ""]
 
 
 def _split_semicolon_list(value: object) -> list[str]:
@@ -98,6 +98,8 @@ def lookup_country_basin(place_names: list[str]) -> list[CountryBasinLookup]:
 
     for placename in place_names:
         clean_placename = placename['placename'].strip()
+        if clean_placename == "Russia":
+            clean_placename = "Russian Federation"
         poss_basins = basins[basins["Riparian Countries"].apply(lambda x: clean_placename in x.split("; "))].BCODE.to_list()
         for basin in poss_basins:
             country_voting[basin] += 1
