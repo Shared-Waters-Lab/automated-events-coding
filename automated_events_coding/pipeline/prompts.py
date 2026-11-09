@@ -9,6 +9,7 @@ corresponding model changes.
 # Step 1 - Event Extraction
 # Input: PR data (text) + Step 0 metadata
 # Output: events: Event[]
+# to add (try): actions, interactions, riparian state entities, non rip state entities, as much as we can. 
 STEP1_EVENT_EXTRACTION = """\
 # Event detection task
 ## Background
@@ -27,6 +28,21 @@ Use the following definition to inform your response:
   // rest of events
 ]
 ```
+## Examples
+### Example 1
+#### Article 
+SOURCE: La Razon (Bolivia), 10 Jun 2019, online
+ABSTRACT
+Chile has asked the International Court of Justice (ICJ) for an extra three months to provide a written response to Bolivian reports in the Silala River case, despite the fact that the phase for the presentation of written documents has been concluded. Diego Pary, Bolivia's Foreign Affairs Minister, has stated that it will demand the right to reply in case the ICJ allows Chile to present a new report, which would also postpone the start of oral proceedings. Pary added that Bolivia had presented a counter claim to defend the sovereignty of Silala waters, located in Quetena Chico canton, Potosi department.
+Load-Date: June 12, 2019
+#### Event
+```json
+[
+  {
+    "event_summary": "Chile requested an additional three months from the International Court of Justice (ICJ) to provide a written response to Bolivia's reports in the Silala River case, even though the phase for presenting written documents had concluded. Bolivia's Foreign Affairs Minister Diego Pary stated that Bolivia would demand the right to reply if the ICJ allowed Chile to present a new report, which would also postpone the start of oral proceedings." 
+  }
+]
+```
 ## Notes
 * When an action is ambigious use the exact language from the article.
 * Pay close attention to what the event really is. To do so be sure to track the verb tenses used. Do not cut up the event into different parts. Instead use your knowledge of news articles to accurately determine each event.
@@ -35,6 +51,7 @@ Use the following definition to inform your response:
 """
 
 # Step 2 - Location Extraction
+# wikipedia api
 # Input: single Event
 # Output: place_names: string[]
 STEP2_LOCATION_EXTRACTION = """\
@@ -50,7 +67,7 @@ You will be given a description of an event and an article from which that event
 [
   {
     "placename": str, // placename
-    "placename_type": str // either "country" nor "non-country"
+    "placename_type": str, // either "country" nor "non-country"
   }
 ]
 ```
@@ -119,15 +136,18 @@ You will be given a description of an event and an article from which that event
 """
 
 # Step 4.1 - Entity Extraction
-# Input: Article, Riparian Countries, Event text
+# Input: Article, Basin, Riparian Countries, Event text
 # Output: Entity list
 STEP4_1_ENTITY_EXTRACTION = """\
 # Entity Extraction Task
 ## Background
-You will be given a news article and an event summary taken from it. You will also be given a list of possible entities which could interact in this event. Based on this information, you will return a list of potential entities who could have interacted in this event.
+You will be given a news article, the name of a river basin, and a basin event summary taken from the article. You will also be given a list of riparian countries which could act independently or interact with other entities in this event. Based on this information, you will return a list of entity interaction and actions which could have happened in this event.
 ## Definitions
-* Basin entities: These are entities, usually states, which may be riparian to the given basin and who may or may not have interacted with eachother or a non-basin entity in the context of the given event.
-* Non-Basin entities: These are entities, usually non-governmetal organizations, multilateral finance or development organization, or non-state entities, which have interacted with eachother or a basin entity in the context of the given event.
+* Events: Events are comprised of interactions; an event and an interaction are equivalent if there are only two entities interacting. In the dimensional analogy, events are two-dimensional (2D), a collection of lines (interactions) and nodes (actions).  
+* Interactions: If an incident involves multiple riparians and/or multiple basins, the event is broken into interactions determined by the entity-pair interacting in the event (or entity dyad) and the basin involved. In the dimensional analogy, interactions are one-dimensional (1D), a line. 
+* Actions: If an event involves only one entity acting on a single or multiple shared basin(s) that could impact other entities but is not an interaction between entities (an “initiator-recipient” pair), this is considered an action. In the dimensional analogy, actions are zero-dimensional (0D), points or nodes. Actions that take place on a transboundary freshwater body within the borders of a single country and have an impact larger than the local scale are considered to have a transboundary impact and are included in the analysis. Examples include domestic diversion projects for drinking water from a transboundary lake or one country building a dam on a tributary river. 
+* Riparian entities: These are entities, usually states, which may be riparian to the given basin and who may or may not have interacted with each other or a non-basin entity in the context of the given event.
+* Non-riparian entities: These are entities, usually states not riparian to the basin, non-governmetal organizations, multilateral finance or development organization, or non-state entities, which have interacted with each other or a riparian entity in the context of the given event.
 * Do not list the following:
   - Names of people, only the organizations and/or states which they represent. 
     - If the person in question is the head of state, president, prime minister or an ambassador, for these purposes, they simply represent the state itself and do not need to be listed as a separate entity.
@@ -136,11 +156,40 @@ You will be given a news article and an event summary taken from it. You will al
   - Dates or times
   - Quantitative data
   - Concepts
+* Interaction summary: A concise description of the interaction between the two entities. If possible, note the underlying issue or difference of perception between the actors.
+* Action summary: A concise description of the action taken by the single entity.
+* Directionality codes: This indicates the role that each entity plays in the interaction.
+  - "I": The initiator of the interaction. Every "I" should be paired with an "R" or an "O".
+  - "R": The recipient of the interaction. Every "R" should be paired with an "I" or an "O". 
+  - "M": The interaction is mutual between the pair of entities involved. An "M" should pair with another "M" or an "O".
+  - "O": 'Other' entities related to the event but are not directly part of the event action. "O" should be used as conservatively as possible. It is not a catch-all and should not be used as such.
+  - Notes: 
+    - No interaction should ever be between the same entity. This is an action. Code it as such. 
+    - entity_1: "O" and entity_2: "R" should be used in cases where a non-riparian entity_1 provides funds to a riparian entity_2. 
 ## Output format
 ```json 
 {
-  "entity_list":[
-    // list potential entities here
+  "interactions": [
+    {
+      "interaction_summary": str, 
+      "entity_1": {
+        "name": // name of the entity
+        "directionality_code": // I, R, M, or O
+      },
+      "entity_2": {
+        "name": // name of the entity
+        "directionality_code": // I, R, M, or O
+      },
+    }
+  ],
+  "actions":[
+    {
+      "action_summary": str,
+      "entity_1": {
+        "name": // name of the entity,
+        "directionality_code": "N"
+      }
+    }
   ]
 }
 ```
