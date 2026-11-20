@@ -6,41 +6,52 @@ generated from `pipeline/schemas.py` — regenerate the JSON schema block if the
 corresponding model changes.
 """
 
+PROJECT_BOILERPLATE = """\
+## Project Context
+Despite the growing literature on water and conflict in international river basins, little empirical work has been done to bolster common conclusions which are so widely reported. In order to address this gap, we set out to assess all reported events of either conflict or cooperation between nations over water resources during the last 50 years and to use these events to inform the identification of basins at greatest risk of political stress in the near future (5-10 years). 
+""".strip()
+
 # Step 1 - Event Extraction
 # Input: PR data (text) + Step 0 metadata
 # Output: events: Event[]
 # to add (try): actions, interactions, riparian state entities, non rip state entities, as much as we can. 
 STEP1_EVENT_EXTRACTION = """\
 # Event detection task
+[pb]
 ## Background
-You will be given an article that reports one or more events. We are compiling a data set of current events, so please extract all of the current events. Assume historical events and background information have already been catalogued.
+You will be given an article that reports one or more events. We are compiling a data set of current events, so please extract all of the current events. Assume historical events and background information have already been catalogued. Along with each event, also record associated placename data for that event. 
 ## Definitions
 Use the following definition to inform your response:
-* Events: These are the current, specific actions taken by actors referenced in the news article, current relative to the writing of the article and the reason why the article is written. The event is singular regardless of the number of riparians and actors involved. Events are comprised of interactions; an event and an interaction are equivalent if there are only two entities interacting. There can be multiple events within a single article; each event should be listed separately. An event is something that has definitively happened and not background information that acts as context for the reader.
+* Events: These are the current, specific actions taken by actors referenced in the news article, current relative to the writing of the article and the reason why the article is written. The event is singular regardless of the number of riparians and actors involved. Events are comprised of interactions; an event and an interaction are equivalent if there are only two entities interacting. There can be multiple events within a single article; each event should be listed separately. An event is something that has definitively happened and not background information that acts as context for the reader. To be included, events
+  - Must involve freshwater as a consumable resource. Only events which included provisions related to water as a scarce or consumable resource, a quantity to be managed, or an ecosystem to be improved or maintained are included. Most importantly, this meant events focused on navigation, border delineation and fishing rights (as distinct from water as a provider of habitat for fish) and which did not also have an element related to water as a scarce or consumable resource were excluded.
+  - The funding or financing of water as a consumable resource should be included within the relevant event, along with the details of this funding or financing including the bodies providing it. 
+  - Must involve a transboundary or shared water, with at least cross-border impact potential.
+  - For example:
+    - YES: Grand Ethiopian Renaissance Dam - alters the amount of water available for downstream entities (Ethiopia, Sudan, Egypt).
+    - YES: Limiting river pollution to the Great Lakes of North America - alters the water quality of a shared downstream transboundary water (U.S. and Canada).
+    - NO: Development funding for Kuwait freshwater wells within a domestic aquifer - does not involve transboundary waters.
+    - NO: Shared navigation agreements without provisions addressing water quality, quantity, etc. - does not involve water as a consumable resource.
+    - NO: The news article is informative only and does not describe a particular event. 
+  - Scale: Events are defined as instances of conflict and cooperation that occur within an international river basin; and concern freshwater as a scarce or consumable resource (e.g., water quantity, water quality) or as a quantity to be managed (e.g., flooding or flood control, water levels for navigational purposes). For example, a treaty signed at a meeting will constitute two events: first the meeting and then the treaty. 
 * Background: This is information about things that happened in the past that are used to inform the reader of the context of current events. These often include former laws or treaties that have been signed prior to the current events. They also comprise existing infrastructure and other resources like dams, bridges etc....
-* Summary: A detailed description of the event as a whole these should be summarized here. It should reflect specific language mentioned in the article, especially key operative verbs.
+* Summary: A detailed description of the event as a whole these should be summarized here. It should reflect specific language mentioned in the article, especially key operative verbs, as well as who was involved (nations, multi-lateral financial institutions, intergovernmental organizations, non-governmental organizations etc...) and the location of the event's impact. 
+* Placenames: Only collect placenames that refer to water bodies (including but not limited to rivers, tributaries, dams and other infrastructure and project titles), as well as country, city names. Pay close attention to abbreviations that occur in the article text and event. 
+* Please convert demonyms to their country names only when the event is occuring in that country. For example, if you extract "Namibian", convert it first to "Namibia". Otherwise, ignore demonyms entirely. 
+* Placename type: Please report whether or not the placename is a country or not, with "country" for the former and "non-country" for the latter.
 ## Output Format
 ```json
 [
   {
-    "event_summary": str // name of event
+    "event_summary": str, // name of event
+    "placenames": [
+      {
+        "placename": str, // placename
+        "placename_type": str, // either "country" nor "non-country"
+      },
+      // rest of placenames
+    ]
   },
   // rest of events
-]
-```
-## Examples
-### Example 1
-#### Article 
-SOURCE: La Razon (Bolivia), 10 Jun 2019, online
-ABSTRACT
-Chile has asked the International Court of Justice (ICJ) for an extra three months to provide a written response to Bolivian reports in the Silala River case, despite the fact that the phase for the presentation of written documents has been concluded. Diego Pary, Bolivia's Foreign Affairs Minister, has stated that it will demand the right to reply in case the ICJ allows Chile to present a new report, which would also postpone the start of oral proceedings. Pary added that Bolivia had presented a counter claim to defend the sovereignty of Silala waters, located in Quetena Chico canton, Potosi department.
-Load-Date: June 12, 2019
-#### Event
-```json
-[
-  {
-    "event_summary": "Chile requested an additional three months from the International Court of Justice (ICJ) to provide a written response to Bolivia's reports in the Silala River case, even though the phase for presenting written documents had concluded. Bolivia's Foreign Affairs Minister Diego Pary stated that Bolivia would demand the right to reply if the ICJ allowed Chile to present a new report, which would also postpone the start of oral proceedings." 
-  }
 ]
 ```
 ## Notes
